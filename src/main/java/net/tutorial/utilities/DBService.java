@@ -11,11 +11,6 @@ import java.util.Map;
 
 public class DBService {
 
-	private final String HOST = "us-cdbr-iron-east-04.cleardb.net";
-	private final String PORT = "3306";
-	private final String DB_NAME = "ad_a26915a035fc832";
-	private final String DB_USERNAME = "b035db40527917";
-	private final String DB_PASSWORD = "61e95ee1";
 	public static final int INSERT_RECORD = 1;
 	public static final int UPDATE_RECORD = 2;
 
@@ -87,9 +82,11 @@ public class DBService {
 		}
 
 		try {
-			dbConnection = DriverManager.getConnection("jdbc:mysql://" + HOST + ":" + PORT + "/" + DB_NAME, DB_USERNAME,
-					DB_PASSWORD);
-
+			
+			EnvVariables envVar = new EnvVariables();
+			Map<String, String> creds = envVar.getCredentials("cleardb");
+			dbConnection = DriverManager.getConnection(creds.get("jdbcUrl"));
+			
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			return null;
@@ -142,9 +139,7 @@ public class DBService {
 			ps = this.dbConnection.prepareStatement(sSQL);
 			ps.setInt(1, id);
 			rs = ps.executeQuery();
-			System.out.println("pass 1");
 			if (rs.next()) {
-				System.out.println("pass 2");
 				record.put("_id", rs.getInt("_id"));
 				record.put("name", rs.getString("name"));
 				record.put("email", rs.getString("email"));
@@ -157,7 +152,6 @@ public class DBService {
 		} finally {
 			cleanUp();
 		}
-		System.out.println("pass 3");
 		return record;
 	}
 
